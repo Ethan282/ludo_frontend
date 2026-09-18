@@ -9,11 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&display=swap" rel="stylesheet">
   <script src="socket.io.min.js"></script>
-  <script>
-    if (typeof io === 'undefined') {
-      document.write('<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"><\\/script>');
-    }
-  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js"></script>
 <style>
   :root {
     --bg: #ECE6F2;
@@ -1467,7 +1463,11 @@
       callback();
       return;
     }
-    const sources = ['socket.io.min.js', 'https://cdn.socket.io/4.7.5/socket.io.min.js', 'https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js'];
+    const sources = [
+      'socket.io.min.js',
+      'https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js',
+      'https://cdn.jsdelivr.net/npm/socket.io-client@4.7.5/dist/socket.io.min.js'
+    ];
     let idx = 0;
     function tryNext() {
       if (idx >= sources.length) {
