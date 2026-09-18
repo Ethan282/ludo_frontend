@@ -8,7 +8,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <script src="socket.io.min.js"></script>
+  <script>
+    if (typeof io === 'undefined') {
+      document.write('<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"><\\/script>');
+    }
+  </script>
 <style>
   :root {
     --bg: #ECE6F2;
@@ -1457,8 +1462,32 @@
     }
   };
 
+  function ensureSocketIo(callback) {
+    if (typeof io !== 'undefined') {
+      callback();
+      return;
+    }
+    const sources = ['socket.io.min.js', 'https://cdn.socket.io/4.7.5/socket.io.min.js', 'https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js'];
+    let idx = 0;
+    function tryNext() {
+      if (idx >= sources.length) {
+        setStatus(null, 'Could not load multiplayer library. Please refresh.');
+        return;
+      }
+      const s = document.createElement('script');
+      s.src = sources[idx++];
+      s.onload = () => { if (typeof io !== 'undefined') callback(); else tryNext(); };
+      s.onerror = () => tryNext();
+      document.head.appendChild(s);
+    }
+    tryNext();
+  }
+
   function connectSocket() {
-    if (typeof io === 'undefined') { alert('Socket.IO library not loaded. Please refresh the page.'); return; }
+    if (typeof io === 'undefined') {
+      ensureSocketIo(() => connectSocket());
+      return;
+    }
     if (socket) {
       if (socket.connected) return;
       socket.connect();
@@ -1467,9 +1496,9 @@
     const serverUrl = getServerUrl();
     console.log('Connecting to Ludo backend:', serverUrl);
     socket = io(serverUrl, {
-      autoConnect: false,
+      autoConnect: true,
       reconnection: true,
-      reconnectionAttempts: 5,
+      reconnectionAttempts: 10,
       reconnectionDelay: 1000,
       transports: ['websocket', 'polling']
     });
